@@ -11,6 +11,7 @@ show_pages(
         #Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
         #Page("pages/preprocess.py", "Pré-processamento", "⚙️"),
         Page("pages/clusterizacao.py", "Clusterização", "🫧"),
+        Page("pages/colunas.py", "Colunas", "🫧"),
         #Page("pages/classificacao.py", "Classificação", "🗃️"),   
     ]
 )
