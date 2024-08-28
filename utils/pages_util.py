@@ -8,10 +8,10 @@ from st_pages import Page, show_pages, add_page_title
 show_pages(
     [
         Page("Home.py", "Início", "🏠"),
-        #Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
+        Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
         #Page("pages/preprocess.py", "Pré-processamento", "⚙️"),
         Page("pages/clusterizacao.py", "Clusterização", "🫧"),
-        Page("pages/colunas.py", "Colunas", "🫧"),
+        #Page("pages/colunas.py", "Colunas", "🫧"),
         #Page("pages/classificacao.py", "Classificação", "🗃️"),   
     ]
 )
