@@ -260,6 +260,8 @@ def main():
     num_clusters = st.slider('Número de Clusters:', 2, 10, 3)
     data_clustered = clusterize_data(selected_data, cluster_features, num_clusters)
 
+    ################## AQUI ##################
+
     # Adicionar gráfico de boxplot para tempo no abrigo por cluster
     st.markdown("<h2>Distribuição do Tempo no Abrigo por Cluster</h2>", unsafe_allow_html=True)
     
@@ -291,6 +293,10 @@ def main():
                            box=True, points='all', labels={'cluster': 'Cluster', 'age_upon_outcome_(years)_original': 'Idade (anos)'})
     
     st.plotly_chart(fig_violin)
+
+
+
+    ################# aquiiiiiiii ########
 
     st.write('----')
 
@@ -378,13 +384,17 @@ def main():
 
     # Criar o gráfico de barras empilhadas
     
-    #fig_intake_condition_stacked_bar = px.bar(intake_condition_data_melted, x='cluster', y='Quantidade', 
-    #                                          color='Condição de Saúde', 
-    #                                          color_discrete_sequence=color_scale[:len(intake_condition_labels)],                                     intake_condition_labels)],
-    #                                          labels={'cluster': 'Cluster', 'Quantidade': 'Quantidade'},
-    #                                          title='Distribuição das Condições de Saúde na Entrada por Cluster')
+    fig_intake_condition_stacked_bar = px.bar(
+    intake_condition_data_melted, 
+    x='cluster', 
+    y='Quantidade', 
+    color='Condição de Saúde', 
+    color_discrete_sequence=color_scale[:len(intake_condition_labels)], 
+    labels={'cluster': 'Cluster', 'Quantidade': 'Quantidade'},
+    title='Distribuição das Condições de Saúde na Entrada por Cluster'
+)
 
-    #st.plotly_chart(fig_intake_condition_stacked_bar)
+    st.plotly_chart(fig_intake_condition_stacked_bar)
 
     st.write('----')
 

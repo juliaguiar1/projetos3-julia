@@ -3,7 +3,6 @@ import streamlit as st
 from utils.data_utils import read_df
 from st_pages import Page, show_pages, add_page_title
 
-#add_page_title()
 
 show_pages(
     [
@@ -11,8 +10,8 @@ show_pages(
         Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
         #Page("pages/preprocess.py", "Pré-processamento", "⚙️"),
         Page("pages/clusterizacao.py", "Clusterização", "🫧"),
-        #Page("pages/colunas.py", "Colunas", "🫧"),
-        #Page("pages/classificacao.py", "Classificação", "🗃️"),   
+        #("pages/colunas.py", "Colunas", "🫧"),
+        Page("pages/classificacao_padronizado.py", "Classificação", "🗃️"),   
     ]
 )
 def build_dataframe_section(df:pd.DataFrame):
