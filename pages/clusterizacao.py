@@ -3,6 +3,9 @@ import pandas as pd
 from utils.data_utils import read_df
 from sklearn.cluster import KMeans
 import plotly.express as px
+import numpy as np
+import plotly.graph_objs as go
+from sklearn.metrics import silhouette_samples, silhouette_score
 
 st.set_page_config(page_title="Clusterização", layout="wide")
 
@@ -29,189 +32,89 @@ def main():
 
     # Colunas a serem utilizadas para a clusterização
     cluster_features_norm = [
-    "dob_year_normalized",
-    "age_upon_intake_(days)_normalized",
-    "age_upon_intake_(years)_normalized",
-    "intake_month_normalized",
-    "intake_year_normalized",
-    "intake_number_normalized",
-    "age_upon_outcome_(days)_normalized",
-    "age_upon_outcome_(years)_normalized",
-    "outcome_month_normalized",
-    "outcome_year_normalized",
-    "outcome_number_normalized",
-    "time_in_shelter_days_normalized",
-    "outcome_subtype_Aggressiv",
-    "outcome_subtype_At Vet   ",
-    "outcome_subtype_Barn     ",
-    "outcome_subtype_Behavior ",
-    "outcome_subtype_Court/Inv",
-    "outcome_subtype_Enroute  ",
-    "outcome_subtype_Foster   ",
-    "outcome_subtype_In Foster",
-    "outcome_subtype_In Kennel",
-    "outcome_subtype_In Surger",
-    "outcome_subtype_Medical  ",
-    "outcome_subtype_Offsite  ",
-    "outcome_subtype_Partner  ",
-    "outcome_subtype_Possible ",
-    "outcome_subtype_Rabies Ri",
-    "outcome_subtype_SCRP     ",
-    "outcome_subtype_Snr      ",
-    "outcome_subtype_Suffering",
-    "outcome_subtype_Underage ",
-    "outcome_type_Adoption       ",
-    "outcome_type_Died           ",
-    "outcome_type_Euthanasia     ",
-    "outcome_type_Missing        ",
-    "outcome_type_Return to Owner",
-    "outcome_type_Transfer       ",
-    "sex_upon_outcome_Intact Female",
-    "sex_upon_outcome_Intact Male  ",
-    "sex_upon_outcome_Neutered Male",
-    "sex_upon_outcome_Spayed Female",
-    "sex_upon_outcome_Unknown      ",
-    "outcome_weekday_Friday   ",
-    "outcome_weekday_Monday   ",
-    "outcome_weekday_Saturday ",
-    "outcome_weekday_Sunday   ",
-    "outcome_weekday_Thursday ",
-    "outcome_weekday_Tuesday  ",
-    "outcome_weekday_Wednesday",
-    "animal_type_Bir",
-    "animal_type_Cat",
-    "animal_type_Dog",
-    "animal_type_Oth",
-    "intake_condition_Aged   ",
-    "intake_condition_Feral  ",
-    "intake_condition_Injured",
-    "intake_condition_Normal ",
-    "intake_condition_Nursing",
-    "intake_condition_Other  ",
-    "intake_condition_Pregnan",
-    "intake_condition_Sick   ",
-    "intake_type_Euthanasia Request",
-    "intake_type_Owner Surrender   ",
-    "intake_type_Public Assist     ",
-    "intake_type_Stray             ",
-    "intake_type_Wildlife          ",
-    "sex_upon_intake_Intact Female",
-    "sex_upon_intake_Intact Male  ",
-    "sex_upon_intake_Neutered Male",
-    "sex_upon_intake_Spayed Female",
-    "sex_upon_intake_Unknown      ",
-    "intake_weekday_Friday   ",
-    "intake_weekday_Monday   ",
-    "intake_weekday_Saturday ",
-    "intake_weekday_Sunday   ",
-    "intake_weekday_Thursday ",
-    "intake_weekday_Tuesday  ",
-    "intake_weekday_Wednesday",
-    "age_upon_outcome_age_group_encoded",
-    "age_upon_intake_age_group_encoded",
-    "is_mix_breed",
-    "color_Black",
-    "color_Brown/Chocolate",
-    "color_Gray/Blue",
-    "color_Other_Colors",
-    "color_Patterned",
-    "color_Red/Orange",
-    "color_White",
-    "color_Yellow/Gold/Cream"
-
-    ]
+        "age_upon_intake_(years)_normalized",
+        "age_upon_outcome_(years)_normalized",
+        "time_in_shelter_days_normalized",
+        "outcome_type_Adoption       ",
+        "outcome_type_Died           ",
+        "outcome_type_Euthanasia     ",
+        "outcome_type_Missing        ",
+        "outcome_type_Return to Owner",
+        "outcome_type_Transfer       ",
+        "sex_upon_outcome_Intact Female",
+        "sex_upon_outcome_Intact Male  ",
+        "sex_upon_outcome_Neutered Male",
+        "sex_upon_outcome_Spayed Female",
+        "sex_upon_outcome_Unknown      ",
+        "animal_type_Bir",
+        "animal_type_Cat",
+        "animal_type_Dog",
+        "animal_type_Oth",
+        "intake_condition_Aged   ",
+        "intake_condition_Feral  ",
+        "intake_condition_Injured",
+        "intake_condition_Normal ",
+        "intake_condition_Nursing",
+        "intake_condition_Other  ",
+        "intake_condition_Pregnan",
+        "intake_condition_Sick   ",
+        "sex_upon_intake_Intact Female",
+        "sex_upon_intake_Intact Male  ",
+        "sex_upon_intake_Neutered Male",
+        "sex_upon_intake_Spayed Female",
+        "sex_upon_intake_Unknown      ",
+        "is_mix_breed",
+        "color_Black",
+        "color_Brown/Chocolate",
+        "color_Gray/Blue",
+        "color_Other_Colors",
+        "color_Patterned",
+        "color_Red/Orange",
+        "color_White",
+        "color_Yellow/Gold/Cream"
+        ]
 
     cluster_features_scaled = [
-
-    "dob_year_scaled",
-    "age_upon_intake_(days)_scaled",
-    "age_upon_intake_(years)_scaled",
-    "intake_month_scaled",
-    "intake_year_scaled",
-    "intake_number_scaled",
-    "age_upon_outcome_(days)_scaled",
-    "age_upon_outcome_(years)_scaled",
-    "outcome_month_scaled",
-    "outcome_year_scaled",
-    "outcome_number_scaled",
-    "time_in_shelter_days_scaled",
-    "outcome_subtype_Aggressiv",
-    "outcome_subtype_At Vet   ",
-    "outcome_subtype_Barn     ",
-    "outcome_subtype_Behavior ",
-    "outcome_subtype_Court/Inv",
-    "outcome_subtype_Enroute  ",
-    "outcome_subtype_Foster   ",
-    "outcome_subtype_In Foster",
-    "outcome_subtype_In Kennel",
-    "outcome_subtype_In Surger",
-    "outcome_subtype_Medical  ",
-    "outcome_subtype_Offsite  ",
-    "outcome_subtype_Partner  ",
-    "outcome_subtype_Possible ",
-    "outcome_subtype_Rabies Ri",
-    "outcome_subtype_SCRP     ",
-    "outcome_subtype_Snr      ",
-    "outcome_subtype_Suffering",
-    "outcome_subtype_Underage ",
-    "outcome_type_Adoption       ",
-    "outcome_type_Died           ",
-    "outcome_type_Euthanasia     ",
-    "outcome_type_Missing        ",
-    "outcome_type_Return to Owner",
-    "outcome_type_Transfer       ",
-    "sex_upon_outcome_Intact Female",
-    "sex_upon_outcome_Intact Male  ",
-    "sex_upon_outcome_Neutered Male",
-    "sex_upon_outcome_Spayed Female",
-    "sex_upon_outcome_Unknown      ",
-    "outcome_weekday_Friday   ",
-    "outcome_weekday_Monday   ",
-    "outcome_weekday_Saturday ",
-    "outcome_weekday_Sunday   ",
-    "outcome_weekday_Thursday ",
-    "outcome_weekday_Tuesday  ",
-    "outcome_weekday_Wednesday",
-    "animal_type_Bir",
-    "animal_type_Cat",
-    "animal_type_Dog",
-    "animal_type_Oth",
-    "intake_condition_Aged   ",
-    "intake_condition_Feral  ",
-    "intake_condition_Injured",
-    "intake_condition_Normal ",
-    "intake_condition_Nursing",
-    "intake_condition_Other  ",
-    "intake_condition_Pregnan",
-    "intake_condition_Sick   ",
-    "intake_type_Euthanasia Request",
-    "intake_type_Owner Surrender   ",
-    "intake_type_Public Assist     ",
-    "intake_type_Stray             ",
-    "intake_type_Wildlife          ",
-    "sex_upon_intake_Intact Female",
-    "sex_upon_intake_Intact Male  ",
-    "sex_upon_intake_Neutered Male",
-    "sex_upon_intake_Spayed Female",
-    "sex_upon_intake_Unknown      ",
-    "intake_weekday_Friday   ",
-    "intake_weekday_Monday   ",
-    "intake_weekday_Saturday ",
-    "intake_weekday_Sunday   ",
-    "intake_weekday_Thursday ",
-    "intake_weekday_Tuesday  ",
-    "intake_weekday_Wednesday",
-    "age_upon_outcome_age_group_encoded",
-    "age_upon_intake_age_group_encoded",
-    "is_mix_breed",
-    "color_Black",
-    "color_Brown/Chocolate",
-    "color_Gray/Blue",
-    "color_Other_Colors",
-    "color_Patterned",
-    "color_Red/Orange",
-    "color_White",
-    "color_Yellow/Gold/Cream"
+        "age_upon_intake_(years)_scaled",
+        "age_upon_outcome_(years)_scaled",
+        "time_in_shelter_days_scaled",
+        "outcome_type_Adoption       ",
+        "outcome_type_Died           ",
+        "outcome_type_Euthanasia     ",
+        "outcome_type_Missing        ",
+        "outcome_type_Return to Owner",
+        "outcome_type_Transfer       ",
+        "sex_upon_outcome_Intact Female",
+        "sex_upon_outcome_Intact Male  ",
+        "sex_upon_outcome_Neutered Male",
+        "sex_upon_outcome_Spayed Female",
+        "sex_upon_outcome_Unknown      ",
+        "animal_type_Bir",
+        "animal_type_Cat",
+        "animal_type_Dog",
+        "animal_type_Oth",
+        "intake_condition_Aged   ",
+        "intake_condition_Feral  ",
+        "intake_condition_Injured",
+        "intake_condition_Normal ",
+        "intake_condition_Nursing",
+        "intake_condition_Other  ",
+        "intake_condition_Pregnan",
+        "intake_condition_Sick   ",
+        "sex_upon_intake_Intact Female",
+        "sex_upon_intake_Intact Male  ",
+        "sex_upon_intake_Neutered Male",
+        "sex_upon_intake_Spayed Female",
+        "sex_upon_intake_Unknown      ",
+        "is_mix_breed",
+        "color_Black",
+        "color_Brown/Chocolate",
+        "color_Gray/Blue",
+        "color_Other_Colors",
+        "color_Patterned",
+        "color_Red/Orange",
+        "color_White",
+        "color_Yellow/Gold/Cream"    
     ]
 
     # Função para calcular o Elbow
@@ -249,6 +152,76 @@ def main():
 
     st.write('----')
 
+
+    #Gráfico de Silhueta
+    def grafico_silhueta(df, n_clusters=4):
+        # Ajustar o KMeans ao DataFrame df
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        cluster_labels = kmeans.fit_predict(df)
+
+        # Calcular a pontuação média de Silhouette
+        silhouette_avg = silhouette_score(df, cluster_labels)
+
+        # Calcular as pontuações de Silhouette para cada ponto
+        sample_silhouette_values = silhouette_samples(df, cluster_labels)
+
+        y_lower = 10
+        silhouette_data = []
+
+        for i in range(n_clusters):
+            # Agregar as pontuações de silhouette para o cluster i e ordenar
+            ith_cluster_silhouette_values = sample_silhouette_values[cluster_labels == i]
+            ith_cluster_silhouette_values.sort()
+
+            size_cluster_i = ith_cluster_silhouette_values.shape[0]
+            y_upper = y_lower + size_cluster_i
+
+            color = px.colors.qualitative.Plotly[i % len(px.colors.qualitative.Plotly)]
+
+            # Adicionar dados ao gráfico
+            silhouette_data.append(go.Scatter(
+                x=ith_cluster_silhouette_values,
+                y=np.arange(y_lower, y_upper),
+                mode='lines',
+                fill='tozerox',
+                fillcolor=color,
+                line=dict(color=color),
+                name=f'Cluster {i}'
+            ))
+
+            y_lower = y_upper + 10
+
+        # Linha vertical para a pontuação média de silhouette de todos os valores
+        silhouette_data.append(go.Scatter(
+            x=[silhouette_avg, silhouette_avg],
+            y=[0, y_lower],
+            mode='lines',
+            line=dict(color='red', dash='dash'),
+            name='Média Silhouette'
+        ))
+
+        # Layout do gráfico
+        layout = go.Layout(
+            title=None,
+            xaxis=dict(title="Valores de Silhouette", range=[-0.1, 1.0]),
+            yaxis=dict(title="Cluster", showticklabels=False),
+            showlegend=True
+        )
+
+        fig = go.Figure(data=silhouette_data, layout=layout)
+
+        # Exibir o gráfico no Streamlit
+        st.plotly_chart(fig)
+        st.write(f"Pontuação Média de Silhouette: {silhouette_avg:.4f}")
+
+    # Slider do gráfico de Silhueta
+    st.markdown("<h2>Gráfico de Silhueta</h2>", unsafe_allow_html=True)
+    num_clusters_silhueta = st.slider('Número de Clusters para o Gráfico de Silhueta:', 2, 10, 4)
+    grafico_silhueta(selected_data[cluster_features], n_clusters=num_clusters_silhueta)
+
+
+    st.write('----')
+
     # Função para clusterização
     def clusterize_data(data, features, num_clusters=3):
         kmeans = KMeans(n_clusters=num_clusters, random_state=42)
@@ -275,6 +248,8 @@ def main():
                          color='cluster', color_discrete_sequence=color_scale[:num_clusters],
                          labels={'cluster': 'Cluster', 'time_in_shelter_days_original': 'Tempo no Abrigo (dias)'})
     
+    fig_boxplot.update_layout(showlegend=False)
+
     st.plotly_chart(fig_boxplot)
 
     st.write('----')
@@ -292,6 +267,8 @@ def main():
                            color='cluster', color_discrete_sequence=color_scale[:num_clusters],
                            box=True, points='all', labels={'cluster': 'Cluster', 'age_upon_outcome_(years)_original': 'Idade (anos)'})
     
+    fig_violin.update_layout(showlegend=False)
+
     st.plotly_chart(fig_violin)
 
 

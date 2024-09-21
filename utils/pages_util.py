@@ -7,11 +7,15 @@ from st_pages import Page, show_pages, add_page_title
 show_pages(
     [
         Page("Home.py", "Início", "🏠"),
-        Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
+        #Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
         #Page("pages/preprocess.py", "Pré-processamento", "⚙️"),
         Page("pages/clusterizacao.py", "Clusterização", "🫧"),
         #("pages/colunas.py", "Colunas", "🫧"),
-        Page("pages/classificacao_padronizado.py", "Classificação", "🗃️"),   
+        Page("pages/classificacao_padronizado.py", "Simule com modelos de Classificação", "🗃️"), 
+        Page("pages/grafico1.py", "EDA - Distribuição por Idade e Gênero", "📊"),
+        Page("pages/grafico2.py", "EDA - Tipo de Entrada/Saída e Tipo de Animal", "📊"),
+        Page("pages/grafico3.py", "EDA - Condição de Entrada e Tipo de Animal", "📊"),
+        Page("pages/grafico4.py", "EDA - Radar de Entradas e Saídas por meses", "📊"),
     ]
 )
 def build_dataframe_section(df:pd.DataFrame):

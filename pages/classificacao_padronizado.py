@@ -7,17 +7,16 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from imblearn.over_sampling import SMOTE
 import plotly.figure_factory as ff
 from utils.data_utils import read_df
-
+from xgboost import XGBClassifier  # Importando o XGBoost
 
 # Carregar o dataset
 df_scaled = read_df('scaled_ACC_INTAKES_OUTCOMES', extension='parquet')
 
-
 # 2. Configuração da Interface
-st.write('<h1>Classificação - Dataset Padronizado</h1>', unsafe_allow_html=True)
-st.write('''<p>Para esta classificação, serão usados os algoritmos Random Forest e SVM. As características que serão usadas para 
+st.write('<h1>Realize uma simulação com modelos de Classificação</h1>', unsafe_allow_html=True)
+st.write('''<p>Para esta classificação, serão usados os algoritmos Random Forest, SVM e XGBoost. As características que serão usadas para 
          a seleção são referentes aos animais que passaram pelo Centro de Animal de Austin. A seleção destas colunas tem como 
-         foco acertar as ocorrências de adoção, transferência ou eutanásia. Após a predicção, é exibido a porcentagem de acerto das amostras de treino e teste.</p>''', unsafe_allow_html=True)
+         foco acertar as ocorrências de adoção, transferência, eutanásia, morto ou outro. Após a predicção, é exibido a porcentagem de acerto das amostras de treino e teste.</p>''', unsafe_allow_html=True)
 
 st.write('----')
 
@@ -65,33 +64,62 @@ for feature in selected_features:
 
 # 3. Processamento dos Dados
 X = df_scaled[columns_selected]
-y = df_scaled[["outcome_type_Adoption       ", "outcome_type_Euthanasia     ", "outcome_type_Transfer       "]]
+
+# Criar a nova coluna "outcome_type_Others" com a operação bitwise OR para combinar "Missing" e "Return to Owner"
+df_scaled['outcome_type_Others'] = df_scaled['outcome_type_Missing        '] | df_scaled['outcome_type_Return to Owner']
+
+# Remover as colunas originais "Missing" e "Return to Owner"
+df_scaled = df_scaled.drop(columns=['outcome_type_Missing        ', 'outcome_type_Return to Owner'])
+
+# Mapeamento das colunas para labels legíveis
+label_mapping = {
+    "outcome_type_Adoption       ": "Adotado",
+    "outcome_type_Euthanasia     ": "Eutanásia",
+    "outcome_type_Died           ": "Morto",
+    "outcome_type_Others": "Outro",
+    "outcome_type_Transfer       ": "Transferido",
+}
+
+# Atualizar a variável de destino (y) para incluir as novas colunas-alvo
+y = df_scaled[["outcome_type_Adoption       ", "outcome_type_Euthanasia     ", "outcome_type_Transfer       ", "outcome_type_Others", "outcome_type_Died           "]]
 
 # Divisão dos dados
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
-# Balanceamento dos dados
-smote = SMOTE(random_state=42)
+# Convertendo o DataFrame y_train para uma coluna única, com a classe dominante para cada instância
 y_train_combined = y_train.idxmax(axis=1)
-X_train_balanced, y_train_balanced = smote.fit_resample(X_train, y_train_combined)
+
+# Mapeando as classes categóricas para valores numéricos
+class_mapping = {col: i for i, col in enumerate(y.columns)}
+y_train_mapped = y_train_combined.map(class_mapping)
+y_test_mapped = y_test.idxmax(axis=1).map(class_mapping)
+
+# Balanceamento dos dados (SMOTE) no conjunto de treino
+smote = SMOTE(random_state=42)
+X_train_balanced, y_train_balanced = smote.fit_resample(X_train, y_train_mapped)
 
 # 4. Treinamento do Modelo
-algorithm = st.selectbox("Escolha o Algoritmo", ["Random Forest", "SVM"])
+algorithm = st.selectbox("Escolha o Algoritmo", ["Random Forest", "SVM", "XGBoost"])
 
 if algorithm == "Random Forest":
     model = RandomForestClassifier(random_state=42)
 elif algorithm == "SVM":
     model = SVC(random_state=42)
+elif algorithm == "XGBoost":
+    model = XGBClassifier(random_state=42)
 
 model.fit(X_train_balanced, y_train_balanced)
 
 # Previsões
-y_train_pred = model.predict(X_train_balanced)
-y_test_pred = model.predict(X_test)
+y_test_pred_mapped = model.predict(X_test)
+
+# Reverter os valores numéricos para os rótulos de classe originais
+y_test_pred = pd.Series(y_test_pred_mapped).map({v: k for k, v in class_mapping.items()}).map(label_mapping)
+y_test_mapped_labels = y_test_mapped.map({v: k for k, v in class_mapping.items()}).map(label_mapping)
 
 # Cálculo das Acurácias
-train_accuracy = accuracy_score(y_train_balanced, y_train_pred)
-test_accuracy = accuracy_score(y_test.idxmax(axis=1), y_test_pred)
+train_accuracy = accuracy_score(y_train_balanced, model.predict(X_train_balanced))
+test_accuracy = accuracy_score(y_test_mapped, y_test_pred_mapped)
 
 # Exibir as porcentagens de acerto
 st.write(f"A porcentagem de acerto para o treino foi: <span style='color:red;'>{train_accuracy:.2%}</span>", unsafe_allow_html=True)
@@ -100,10 +128,9 @@ st.write(f"A porcentagem de acerto para o teste foi: <span style='color:red;'>{t
 st.write('----')
 
 st.write('<h2>Métricas de Classificação</h2>', unsafe_allow_html=True)
-st.table(pd.DataFrame(classification_report(y_test.idxmax(axis=1), y_test_pred, target_names=['Adoption', 'Euthanasia', 'Transfer'], output_dict=True)).T)
+st.table(pd.DataFrame(classification_report(y_test_mapped_labels, y_test_pred, target_names=list(label_mapping.values()), output_dict=True)).T)
 
 st.write('----')
-
 
 st.write('<h2>Matriz de Confusão</h2>', unsafe_allow_html=True)
 st.write('''É uma tabela que resume o desempenho de um modelo de classificação, destacando 
@@ -111,31 +138,16 @@ st.write('''É uma tabela que resume o desempenho de um modelo de classificaçã
                  Essa tabela fornece uma visão detalhada dos acertos e erros do modelo, sendo importante 
                  para avaliar sua eficácia e identificar áreas de melhoria.''')
 
-conf_matrix = confusion_matrix(y_test.idxmax(axis=1), y_test_pred)
+conf_matrix = confusion_matrix(y_test_mapped_labels, y_test_pred)
 conf_matrix_df = pd.DataFrame(
     conf_matrix,
-    index=['Adoption', 'Euthanasia', 'Transfer'],
-    columns=['Previsto: Adoption', 'Previsto: Euthanasia', 'Previsto: Transfer']
+    index=list(label_mapping.values()),
+    columns=[f"Previsto: {label}" for label in list(label_mapping.values())]
 )
 st.table(conf_matrix_df)
 
-fig_conf_matrix = ff.create_annotated_heatmap(
-    z=conf_matrix,
-    x=['Previsto: Adoption', 'Previsto: Euthanasia', 'Previsto: Transfer'],
-    y=['Adoption', 'Euthanasia', 'Transfer'],
-    colorscale='Blues',
-    showscale=False
-)
-fig_conf_matrix.update_layout(
-    title='Matriz de Confusão',
-    xaxis_title='Previsto',
-    yaxis_title='Real'
-)
-st.plotly_chart(fig_conf_matrix)
-
-st.write('----')
-# Se o modelo for Random Forest, mostrar feature importance
-if algorithm == "Random Forest":
+# Exibir feature importance se o algoritmo for Random Forest ou XGBoost
+if algorithm in ["Random Forest", "XGBoost"]:
     feature_importances = model.feature_importances_
     st.write('<h2>Feature Importances</h2>', unsafe_allow_html=True)
     st.write("A importância das características mostra quanto cada feature contribui para as decisões do modelo.")
