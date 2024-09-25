@@ -10,6 +10,7 @@ show_pages(
         #Page("pages/exploratory_analisys.py", "Análises Exploratórias", "📝"),
         #Page("pages/preprocess.py", "Pré-processamento", "⚙️"),
         Page("pages/clusterizacao.py", "Clusterização", "🫧"),
+        Page("pages/classificacao.py", "Classificação", "🗃️"),
         #("pages/colunas.py", "Colunas", "🫧"),
         Page("pages/classificacao_padronizado.py", "Simule com modelos de Classificação", "🗃️"), 
         Page("pages/grafico1.py", "EDA - Distribuição por Idade e Gênero", "📊"),

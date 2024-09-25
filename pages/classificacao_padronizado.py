@@ -133,8 +133,7 @@ st.table(pd.DataFrame(classification_report(y_test_mapped_labels, y_test_pred, t
 st.write('----')
 
 st.write('<h2>Matriz de Confusão</h2>', unsafe_allow_html=True)
-st.write('''É uma tabela que resume o desempenho de um modelo de classificação, destacando 
-                 Verdadeiros Positivos (VP), Falsos Positivos (FP), Falsos Negativos (FN) e Verdadeiros Negativos (VN). 
+st.write('''É uma tabela que resume o desempenho de um modelo de classificação. 
                  Essa tabela fornece uma visão detalhada dos acertos e erros do modelo, sendo importante 
                  para avaliar sua eficácia e identificar áreas de melhoria.''')
 
