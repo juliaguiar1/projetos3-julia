@@ -1,21 +1,56 @@
-# PISI3
+This project was developed for the *Interdisciplinary Project for Information Systems III* course, part of the 3rd semester of the Bachelor's degree in Information Systems at the Universidade Federal Rural de Pernambuco (UFRPE).
 
-por: Júlia Aguiar
+## Project Objective
 
-Este projeto é utilizado para as aulas da disciplina de Projeto Interdisciplinar para Sistemas de Informação III, do 3° período do curso de Bacharelado em Sistemas de Informação da Universidade Federal Rural de Pernambuco (UFRPE).
+The goal of this project is to investigate and analyze the patterns and factors that influence the process of animal adoption in shelters, using data from the [Austin Animal Center Shelter Intakes and Outcomes](https://www.kaggle.com/datasets/aaronschlegel/austin-animal-center-shelter-intakes-and-outcomes). By analyzing this data, we aim to better understand the factors that impact animal adoption decisions, with the aim of improving shelter management processes and promoting responsible adoption.
 
-O objetivo deste projeto é investigar e analisar os padrões e fatores que influenciam o processo de adoção de animais em abrigos.
+## Technologies Used
 
-# Passos para a instalação:
-* Instale o VSCode.
-* Efetue o clone do projeto: `CTRL+SHIFT+P > Git:Clone > Clone from GitHub > https://github.com/mmxm0/pisi3-grupo8`
-* Instale o python.
-* Acesse a aba "Terminal" disponível na parte inferior do VSCode.
-* Execute a linha abaixo para criar um ambiente virtual do python para o projeto. Observe que a pasta `venv` está no `.gitignore`.
-    `python -m venv venv`
-* Atualize o pip:
-    `python -m pip install --upgrade pip`  
-* Instale as libs necessárias para o projeto:
-    `pip install -r requirements.txt --upgrade`
-* Rode o sistema:
-    `streamlit run Home.py`
+- **Python**: Main programming language.
+- **Streamlit**: Framework for creating interactive web applications.
+- **Pandas**: Library for data manipulation and analysis.
+- **Scikit-learn**: Library for machine learning and predictive modeling.
+- **Matplotlib/Seaborn**: Libraries for data visualization.
+- **VSCode**: Recommended IDE for project development.
+
+## Installation Instructions
+
+Follow the steps below to set up the development environment and run the project:
+
+### 1. Install Dependencies
+
+- **Install VSCode**: Download and install Visual Studio Code [here](https://code.visualstudio.com/).
+- **Clone the Repository**: Open VSCode and use the command to clone the repository:
+- **Install Python**: Ensure Python is installed. You can download the latest version [here](https://www.python.org/downloads/).
+  
+### 2. Set Up the Virtual Environment
+
+- **Create the virtual environment**:
+  
+  In the VSCode terminal, run the following command to create the Python virtual environment:
+  
+  ```bash
+  python -m venv venv
+
+- **Update pip:**:
+
+  Update pip, the Python package manager:
+
+    ```bash
+  python -m pip install --upgrade pip
+
+### 3. Install Dependencies
+
+- **Install required libraries:**
+    In the terminal, run the following command to install all dependencies listed in the requirements.txt file:
+
+    ```bash
+  pip install -r requirements.txt --upgrade
+
+### 4. Run the System
+
+- **Run the project with Streamlit:**
+
+To run the application, execute the following command in the terminal:
+    ```bash
+    streamlit run Home.py
